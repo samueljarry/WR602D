@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Filesystem\Filesystem;
 use App\Service\PdfGenerationService;
 
-class HtmlToPdfController extends AbstractController
+class GeneratePdfController extends AbstractController
 {
     private Filesystem $fs;
     private PdfGenerationService $service;
