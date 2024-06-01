@@ -17,7 +17,7 @@ class UserTest extends TestCase
         $firstName = 'John';
         $lastName = 'Doe';
         $password = 'test';
-        $role = 'user';
+        $roles = ['ROLE_USER'];
         $subscription_id = null;
         $subscription_end_at = new \DateTime();
         $created_at = new \DateTime();
@@ -29,7 +29,7 @@ class UserTest extends TestCase
         $user->setFirstname($firstName);
         $user->setLastname($lastName);
         $user->setPassword($password);
-        $user->setRole($role);
+        $user->setRoles($roles);
         $user->setSubscriptionId($subscription_id);
         $user->setSubscriptionEndAt($subscription_end_at);
         $user->setCreatedDate($created_at);
@@ -40,7 +40,7 @@ class UserTest extends TestCase
         $this->assertEquals($firstName, $user->getFirstname());
         $this->assertEquals($lastName, $user->getLastname());
         $this->assertEquals($password, $user->getPassword());
-        $this->assertEquals($role, $user->getRole());
+        $this->assertEquals($roles, $user->getRoles());
         $this->assertEquals($subscription_id, $user->getSubscriptionId());
         $this->assertEquals($subscription_end_at, $user->getSubscriptionEndAt());
         $this->assertEquals($created_at, $user->getCreatedDate());
