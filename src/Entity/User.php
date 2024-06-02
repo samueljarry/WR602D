@@ -3,57 +3,34 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-class User
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $lastname = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $firstname = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
-
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\ManyToOne(inversedBy: 'users')]
-    private ?Subscription $subscription_id = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $subscription_end_at = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $created_date = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $updated_at = null;
-
     /**
-     * @var Collection<int, Pdf>
+     * @var string The hashed password
      */
-    #[ORM\OneToMany(targetEntity: Pdf::class, mappedBy: 'user_id')]
-    private Collection $pdfs;
+    #[ORM\Column]
+    private ?string $password = null;
 
-    public function __construct()
-    {
-        $this->pdfs = new ArrayCollection();
-    }
+    #[ORM\Column(type: 'boolean')]
+    private $isVerified = false;
 
     public function getId(): ?int
     {
@@ -72,31 +49,39 @@ class User
         return $this;
     }
 
-    public function getLastname(): ?string
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
     {
-        return $this->lastname;
+        return (string) $this->email;
     }
 
-    public function setLastname(string $lastname): static
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
     {
-        $this->lastname = $lastname;
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
 
         return $this;
     }
 
-    public function getFirstname(): ?string
-    {
-        return $this->firstname;
-    }
-
-    public function setFirstname(string $firstname): static
-    {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    public function getPassword(): ?string
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -108,95 +93,23 @@ class User
         return $this;
     }
 
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    public function getSubscriptionId(): ?Subscription
-    {
-        return $this->subscription_id;
-    }
-
-    public function setSubscriptionId(?Subscription $subscription_id): static
-    {
-        $this->subscription_id = $subscription_id;
-
-        return $this;
-    }
-
-    public function getSubscriptionEndAt(): ?\DateTimeInterface
-    {
-        return $this->subscription_end_at;
-    }
-
-    public function setSubscriptionEndAt(\DateTimeInterface $subscription_end_at): static
-    {
-        $this->subscription_end_at = $subscription_end_at;
-
-        return $this;
-    }
-
-    public function getCreatedDate(): ?\DateTimeInterface
-    {
-        return $this->created_date;
-    }
-
-    public function setCreatedDate(\DateTimeInterface $created_date): static
-    {
-        $this->created_date = $created_date;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
     /**
-     * @return Collection<int, Pdf>
+     * @see UserInterface
      */
-    public function getPdfs(): Collection
+    public function eraseCredentials(): void
     {
-        return $this->pdfs;
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
-    public function addPdf(Pdf $pdf): static
+    public function isVerified(): bool
     {
-        if (!$this->pdfs->contains($pdf)) {
-            $this->pdfs->add($pdf);
-            $pdf->setUserId($this);
-        }
-
-        return $this;
+        return $this->isVerified;
     }
 
-    public function removePdf(Pdf $pdf): static
+    public function setIsVerified(bool $isVerified): static
     {
-        if ($this->pdfs->removeElement($pdf)) {
-            // set the owning side to null (unless already changed)
-            if ($pdf->getUserId() === $this) {
-                $pdf->setUserId(null);
-            }
-        }
+        $this->isVerified = $isVerified;
 
         return $this;
     }
