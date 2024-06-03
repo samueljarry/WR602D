@@ -3,57 +3,40 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-class User
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $lastname = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $firstname = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $role = null;
-
-    #[ORM\ManyToOne(inversedBy: 'users')]
-    private ?Subscription $subscription_id = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $subscription_end_at = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $created_date = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $updated_at = null;
+    #[ORM\Column]
+    private array $roles = [];
 
     /**
-     * @var Collection<int, Pdf>
+     * @var string The hashed password
      */
-    #[ORM\OneToMany(targetEntity: Pdf::class, mappedBy: 'user_id')]
-    private Collection $pdfs;
+    #[ORM\Column]
+    private ?string $password = null;
 
-    public function __construct()
-    {
-        $this->pdfs = new ArrayCollection();
-    }
+    #[ORM\Column(type: 'boolean')]
+    private $isVerified = false;
+
+    #[ORM\ManyToOne(fetch: 'EAGER')]
+    private ?Subscription $subscription_id = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $generatedPdfCount = 0;
 
     public function getId(): ?int
     {
@@ -72,31 +55,39 @@ class User
         return $this;
     }
 
-    public function getLastname(): ?string
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
     {
-        return $this->lastname;
+        return (string) $this->email;
     }
 
-    public function setLastname(string $lastname): static
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
     {
-        $this->lastname = $lastname;
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
 
         return $this;
     }
 
-    public function getFirstname(): ?string
-    {
-        return $this->firstname;
-    }
-
-    public function setFirstname(string $firstname): static
-    {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    public function getPassword(): ?string
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -108,14 +99,23 @@ class User
         return $this;
     }
 
-    public function getRole(): ?string
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials(): void
     {
-        return $this->role;
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
-    public function setRole(string $role): static
+    public function isVerified(): bool
     {
-        $this->role = $role;
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }
@@ -132,69 +132,20 @@ class User
         return $this;
     }
 
-    public function getSubscriptionEndAt(): ?\DateTimeInterface
+    public function getGeneratedPdfCount(): ?int
     {
-        return $this->subscription_end_at;
+        return $this->generatedPdfCount;
     }
 
-    public function setSubscriptionEndAt(\DateTimeInterface $subscription_end_at): static
+    public function setGeneratedPdfCount(?int $generatedPdfCount): static
     {
-        $this->subscription_end_at = $subscription_end_at;
+        $this->generatedPdfCount = $generatedPdfCount;
 
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
+    public function getPdfLimit(): ?int
     {
-        return $this->created_date;
-    }
-
-    public function setCreatedDate(\DateTimeInterface $created_date): static
-    {
-        $this->created_date = $created_date;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Pdf>
-     */
-    public function getPdfs(): Collection
-    {
-        return $this->pdfs;
-    }
-
-    public function addPdf(Pdf $pdf): static
-    {
-        if (!$this->pdfs->contains($pdf)) {
-            $this->pdfs->add($pdf);
-            $pdf->setUserId($this);
-        }
-
-        return $this;
-    }
-
-    public function removePdf(Pdf $pdf): static
-    {
-        if ($this->pdfs->removeElement($pdf)) {
-            // set the owning side to null (unless already changed)
-            if ($pdf->getUserId() === $this) {
-                $pdf->setUserId(null);
-            }
-        }
-
-        return $this;
+        return $this->subscription_id ? $this->subscription_id->getPdfLimit() : null;
     }
 }
