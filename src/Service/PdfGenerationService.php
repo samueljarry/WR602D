@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Constants\Endpoints;
-use GuzzleHttp\Client;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
