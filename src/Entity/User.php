@@ -32,6 +32,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
 
+    #[ORM\ManyToOne(fetch: 'EAGER')]
+    private ?Subscription $subscription_id = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $generatedPdfCount = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -112,5 +118,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->isVerified = $isVerified;
 
         return $this;
+    }
+
+    public function getSubscriptionId(): ?Subscription
+    {
+        return $this->subscription_id;
+    }
+
+    public function setSubscriptionId(?Subscription $subscription_id): static
+    {
+        $this->subscription_id = $subscription_id;
+
+        return $this;
+    }
+
+    public function getGeneratedPdfCount(): ?int
+    {
+        return $this->generatedPdfCount;
+    }
+
+    public function setGeneratedPdfCount(?int $generatedPdfCount): static
+    {
+        $this->generatedPdfCount = $generatedPdfCount;
+
+        return $this;
+    }
+
+    public function getPdfLimit(): ?int
+    {
+        return $this->subscription_id ? $this->subscription_id->getPdfLimit() : null;
     }
 }
