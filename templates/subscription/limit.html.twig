@@ -22,7 +22,7 @@
                     <span>Générations: <b>{{ subscription.getPdfLimit() }}</b></span>
                     <span>Prix: <b>{{ subscription.getPrice() }}€</b></span>
                     <br />
-                    <form action="{{ path('update_subscription', {subscription_id: subscription.getId()}) }}" method="post">
+                    <form action="{{ path('update_subscription', {id: subscription.getId()}) }}" method="post">
                         <button type="submit">Souscrire</button>
                     </form>
                 </li>

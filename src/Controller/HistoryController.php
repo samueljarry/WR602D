@@ -32,6 +32,7 @@ class HistoryController extends AbstractController
         } else {
             // Gérer le cas où le répertoire n'existe pas
             $fileUrls = [];
+            $displayedUrls = [];
         }
 
         return $this->render('history/index.html.twig', [
