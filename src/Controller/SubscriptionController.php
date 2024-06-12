@@ -30,7 +30,7 @@ class SubscriptionController extends AbstractController
     #[Route('/update-subscription', name: 'update_subscription')]
     public function updateSubscription(Request $request): Response
     {
-        $subscription_id = $request->query->get('subscription_id');
+        $subscription_id = $request->query->get('id');
         $subscription = $this->subscriptionRepository->find($subscription_id);
 
         $user = $this->getUser();

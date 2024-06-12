@@ -2,18 +2,46 @@
 
 {% block title %}Register{% endblock %}
 
+
 {% block body %}
-    <h1>Register</h1>
+    <style>
+        .registration-wrapper {
+            padding: 50px;
+        }
 
-    {{ form_errors(registrationForm) }}
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+        form div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+        form div:nth-child(3) {
+            flex-direction: row-reverse;
+            align-self: flex-start;
+        }
+    </style>
+    <div class="registration-wrapper">
+        <h1>Register</h1>
+
+        {{ form_errors(registrationForm) }}
+
+        {{ form_start(registrationForm) }}
+            {{ form_row(registrationForm.email, {
+                autoComplete: 'off',
+                placeholder: 'abc123@gmail.com'
+            }) }}
+            {{ form_row(registrationForm.plainPassword, {
+                label: 'Password'
+            }) }}
+            {{ form_row(registrationForm.agreeTerms) }}
+
+            <button type="submit" class="cta">Register <span><svg xmlns="http://www.w3.org/2000/svg" width="1.5em" viewBox="0 0 24 24"><path fill="currentColor" d="m14 18l-1.4-1.45L16.15 13H4v-2h12.15L12.6 7.45L14 6l6 6z"/></svg></span></button>
+        {{ form_end(registrationForm) }}
+    </div>
 {% endblock %}

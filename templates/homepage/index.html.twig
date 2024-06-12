@@ -4,17 +4,106 @@
 
 {% block body %}
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    .homepage-wrapper { width: 100%; padding: 50px; font: 18px/1.5 sans-serif; }
+
+    .homepage-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .homepage-content {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        gap: 2em;
+    }
+
+    p {
+        color: #7A789F;
+        font-size: 1.3em;
+        line-height: 150%;
+    }
+
+    .homepage-image {
+        position:relative;
+        width: 30%;
+        display: flex;
+        justify-content: center;
+        place-items: center;
+
+        background: #DCE1F6;
+        border-radius: 28px;
+        padding: 24px;
+    }
+
+    .image-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 16px;
+    }
+
+    img {
+        width: 100%;
+        animation: float 3s infinite ease-in-out;
+    }
+
+    .dummy {
+        z-index: -1;
+        position:absolute;
+        left: 0;
+        bottom: 0;
+        height: 100%;
+        width: 100%;
+        aspect-ratio: 0.8;
+        transform: translate(-50%,50%) scale(0.7);
+        border-radius: 16px;
+        border: 3px solid #DCE1F6;
+        animation: float2 3s infinite ease-in-out;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    @keyframes float2 {
+        0%, 100% {
+            transform: translate(-50%, 48%) scale(0.7);
+        }
+        50% {
+            transform: translate(-50%, 50%) scale(0.7);
+        }
+    }
+
 </style>
 
-<div class="example-wrapper">
-    <h1>PDF Converter</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/Applications/MAMP/htdocs/wr602d/src/Controller/HomepageController.php'|file_link(0) }}">src/Controller/HomepageController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/Applications/MAMP/htdocs/wr602d/templates/homepage/index.html.twig'|file_link(0) }}">templates/homepage/index.html.twig</a></code></li>
-    </ul>
+<div class="homepage-wrapper">
+    <div class="homepage-container">
+        <div class="homepage-content">
+            <h1>Turn URLs into<br />PDFs <span class="primary">instantly.</span></h1>
+            <p>Streamline your work with our user-friendly SaaS<br/>
+                software. Enjoy ease of use, customization<br/>
+                scalability, and cost-effectiveness.
+            </p>
+            <a class="cta" href="{{ path('app_register') }}">
+                Get started for free
+                <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" viewBox="0 0 24 24"><path fill="currentColor" d="m14 18l-1.4-1.45L16.15 13H4v-2h12.15L12.6 7.45L14 6l6 6z"/></svg>
+            </a>
+        </div>
+        <div class="homepage-image">
+            <div class="image-container">
+                <img src="{{ 'images/pdf.png' }}" alt="Homepage Image" />
+            </div>
+            <div class="dummy"></div>
+        </div>
+    </div>
 </div>
 {% endblock %}
